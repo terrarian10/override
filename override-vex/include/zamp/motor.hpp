@@ -32,8 +32,12 @@ namespace amp {
 				// efficciency between 1 and 100
 				return std::round(item.get_efficiency() * 100);
 			} else if (toGet == motorStats::SPEED) {
+				// Speed as percent between 0 and 100
 				return std::round(100 * (item.get_actual_velocity() /
 				                         item.get_target_velocity()));
+			} else if (toGet == ROTATION) {
+				// Return motors relative rotation
+				return std::round(item.get_position());
 			}
 			throw std::runtime_error("Get Statement Not Found");
 			return 1;

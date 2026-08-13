@@ -1,3 +1,8 @@
 #pragma once
 #include "zamp/consts.hpp"
-amp::pose collapse() { return { 0, 0, 0 }; }
+namespace amp {
+	class localizer {
+		amp::pose collapse() { return { 0, 0, 0 }; }
+		void hellor() {}
+	};
+}

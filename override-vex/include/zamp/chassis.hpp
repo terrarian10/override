@@ -38,11 +38,36 @@ namespace amp {
 			pos.theta += addPos.theta;
 			return 0;
 		}
+		void odomTick() {
+			std::double_t forward = sensors.vertical.rotToCm();
+			std::double_t sideways = sensors.horizontal.rotToCm();
+			std::double_t theta = pos.theta;
+
+			std::double_t dForward = forward - oldMovement.y;
+			std::double_t dSideways = sideways - oldMovement.x;
+			std::double_t dTheta = theta - oldMovement.theta;
+
+			dForward -= sensors.vertical.getOffset() * dTheta;
+			dSideways -= sensors.horizontal.getOffset() * dTheta;
+
+			std::double_t avgTheta = oldMovement.theta + dTheta / 2.0;
+
+			std::double_t dx =
+			    dForward * std::sin(avgTheta) + dSideways * std::cos(avgTheta);
+			std::double_t dy =
+			    dForward * std::cos(avgTheta) - dSideways * std::sin(avgTheta);
+			oldPos = pos;
+			pos.x = dx;
+			pos.y = dy;
+		}
 
 	private:
 		std::vector<amp::motor>& leftWheels;
 		std::vector<amp::motor>& rightWheels;
 		sensors& sensors;
 		amp::pose pos;
+		amp::pose oldPos;
+
+		amp::pose oldMovement; // Old forward / sideways / theta
 	};
-} // namespace zirconium
+}

@@ -1,12 +1,21 @@
-#include "zamp/consts.hpp"
+#include "pros/distance.hpp"
+#include "pros/imu.hpp"
 #include "zamp/motor.hpp"
 #include "zamp/odometry.hpp"
 #include <cstdint>
+#include <optional>
 #include <vector>
 namespace amp {
 	struct sensors {
 		odometryWheel horizontal;
 		odometryWheel vertical;
+		pros::Imu imu;
+		std::optional<pros::Distance> front;
+		std::optional<pros::Distance> front_2;
+		std::optional<pros::Distance> right;
+		std::optional<pros::Distance> right_2;
+		std::optional<pros::Distance> left;
+		std::optional<pros::Distance> left_2;
 	};
 	class chassis {
 	public:
@@ -41,7 +50,7 @@ namespace amp {
 		void odomTick() {
 			std::double_t forward = sensors.vertical.rotToCm();
 			std::double_t sideways = sensors.horizontal.rotToCm();
-			std::double_t theta = pos.theta;
+			std::double_t theta = sensors.imu.get_heading();
 
 			std::double_t dForward = forward - oldMovement.y;
 			std::double_t dSideways = sideways - oldMovement.x;
@@ -56,9 +65,13 @@ namespace amp {
 			    dForward * std::sin(avgTheta) + dSideways * std::cos(avgTheta);
 			std::double_t dy =
 			    dForward * std::cos(avgTheta) - dSideways * std::sin(avgTheta);
-			oldPos = pos;
-			pos.x = dx;
-			pos.y = dy;
+			oldOdomPos = pos;
+			odomEstimate.x += dx;
+			odomEstimate.y += dy;
+			odomEstimate.theta = theta;
+			oldMovement.x = sideways;
+			oldMovement.y = forward;
+			oldMovement.theta = pos.theta;
 		}
 
 	private:
@@ -66,7 +79,10 @@ namespace amp {
 		std::vector<amp::motor>& rightWheels;
 		sensors& sensors;
 		amp::pose pos;
-		amp::pose oldPos;
+		amp::pose odomEstimate;
+		amp::pose distanceEstimate;
+
+		amp::pose oldOdomPos;
 
 		amp::pose oldMovement; // Old forward / sideways / theta
 	};

@@ -2,7 +2,6 @@
 #include <cmath>
 #include <cstdint>
 #include <stdexcept>
-#include <system_error>
 namespace amp {
 	enum motorStats { PORT, EFFICIENCY, SPEED, ROTATION };
 	class motor {

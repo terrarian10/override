@@ -1,6 +1,8 @@
 
 #include "pros/misc.h"
+#include "pros/misc.hpp"
 #include "zamp/virtualController.hpp"
+#include "ztransistor/consts.hpp"
 #include "ztransistor/main.hpp"
 // #include "consts.hpp"
 // #include "pros/misc.h"
@@ -13,7 +15,7 @@ namespace amp {
 		explicit init_controller_c(virtualController& vc)
 		    : vc(vc) {};
 		bool run() override {
-			for (int i : static_cast<int>(vc.buttons.size())) {
+			for (auto& i : digital_buttons) {
 				vc.set_button(i, false);
 			}
 			return true;

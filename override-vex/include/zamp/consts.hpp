@@ -1,3 +1,4 @@
+#pragma once
 #include <cmath>
 #include <numbers>
 namespace amp::WHEELS {
@@ -14,9 +15,10 @@ namespace amp {
 		std::double_t x;
 		std::double_t y;
 		std::double_t theta = 0;
-		float getDegrees() { return theta; };
-		float getRadians() { return theta * std::numbers::pi / 180; }
-		void setDegrees(std::double_t toSet) { theta = toSet; }
-		void setRadians(std::double_t toSet) { theta = numbers::toDEGS; }
+		double getDegrees() const { return theta * amp::numbers::toDEGS; };
+		double getRadians() const { return theta; }
+		void setDegrees(double degrees) { theta = degrees * numbers::toRADS; }
+
+		void setRadians(double radians) { theta = radians; }
 	};
 }

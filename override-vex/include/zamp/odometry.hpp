@@ -1,5 +1,6 @@
+
+#pragma once
 #include "pros/rotation.hpp"
-#include "zamp/consts.hpp"
 #include <cmath>
 namespace amp {
 	class odometryWheel {

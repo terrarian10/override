@@ -1,7 +1,9 @@
+#pragma once
+#include "odometry.hpp"
 #include "pros/distance.hpp"
 #include "pros/imu.hpp"
+#include "zamp/math.hpp"
 #include "zamp/motor.hpp"
-#include "zamp/odometry.hpp"
 #include <cstdint>
 #include <optional>
 #include <vector>
@@ -17,14 +19,23 @@ namespace amp {
 		std::optional<pros::Distance> left;
 		std::optional<pros::Distance> left_2;
 	};
+	struct motionController {
+		const double lateralKP = 3.0;
+		const double lateralKD = 10.0;
+
+		const double angularKP = 50.0;
+		const double angularKD = 5.0;
+	};
 	class chassis {
 	public:
 		explicit chassis(std::vector<amp::motor>& leftWheels,
 		                 std::vector<amp::motor>& rightWheels,
-		                 sensors& sensors)
+		                 sensors& sensors,
+		                 motionController moveCtrl)
 		    : leftWheels(leftWheels)
 		    , rightWheels(rightWheels)
-		    , sensors(sensors) {
+		    , sensors(sensors)
+		    , moveCtrl(moveCtrl) {
 
 		    };
 
@@ -37,47 +48,76 @@ namespace amp {
 			}
 			return 0;
 		}
+		int addVolts(std::int32_t left, std::int32_t right) {
+			for (auto& i : leftWheels) {
+				i.set(left);
+			}
+			for (auto& i : rightWheels) {
+				i.set(right);
+			}
+			return 0;
+		}
 		int resetPos(amp::pose setPos) {
+			setPos.theta *= amp::numbers::toRADS;
 			pos = setPos;
 			return 0;
 		}
 		int modifyPos(amp::pose addPos) {
 			pos.x += addPos.x;
 			pos.y += addPos.y;
-			pos.theta += addPos.theta;
+			pos.theta += addPos.theta * amp::numbers::toRADS;
 			return 0;
 		}
 		void odomTick() {
-			std::double_t forward = sensors.vertical.rotToCm();
-			std::double_t sideways = sensors.horizontal.rotToCm();
-			std::double_t theta = sensors.imu.get_heading();
+			double forward = sensors.vertical.rotToCm();
+			double sideways = sensors.horizontal.rotToCm();
 
-			std::double_t dForward = forward - oldMovement.y;
-			std::double_t dSideways = sideways - oldMovement.x;
-			std::double_t dTheta = theta - oldMovement.theta;
+			//  IMU To Radian
+			//
+			// 0 rad   = +X
+			// pi/2    = +Y
+			// Because ofc it cant be simple where 0 rad = +y and keep the math
+			// sane positive = counterclockwise sobbbbb screw you
+			double imuHeading =
+			    sensors.imu.get_heading() * amp::numbers::toRADS;
+
+			double theta =
+			    amp::constrainAngle(amp::numbers::PI / 2.0 - imuHeading);
+
+			double dForward = forward - oldMovement.y;
+
+			double dSideways = sideways - oldMovement.x;
+
+			double dTheta = amp::constrainAngle(theta - oldMovement.theta);
 
 			dForward -= sensors.vertical.getOffset() * dTheta;
+
 			dSideways -= sensors.horizontal.getOffset() * dTheta;
 
-			std::double_t avgTheta = oldMovement.theta + dTheta / 2.0;
+			double avgTheta = oldMovement.theta + dTheta / 2.0;
 
-			std::double_t dx =
-			    dForward * std::sin(avgTheta) + dSideways * std::cos(avgTheta);
-			std::double_t dy =
-			    dForward * std::cos(avgTheta) - dSideways * std::sin(avgTheta);
-			oldOdomPos = pos;
+			double dx =
+			    dForward * std::cos(avgTheta) + dSideways * std::sin(avgTheta);
+
+			double dy =
+			    dForward * std::sin(avgTheta) - dSideways * std::cos(avgTheta);
+
+			oldOdomPos = odomEstimate;
+
 			odomEstimate.x += dx;
 			odomEstimate.y += dy;
 			odomEstimate.theta = theta;
+
 			oldMovement.x = sideways;
 			oldMovement.y = forward;
-			oldMovement.theta = pos.theta;
+			oldMovement.theta = theta;
 		}
 
 	private:
 		std::vector<amp::motor>& leftWheels;
 		std::vector<amp::motor>& rightWheels;
 		sensors& sensors;
+		motionController moveCtrl;
 		amp::pose pos;
 		amp::pose odomEstimate;
 		amp::pose distanceEstimate;

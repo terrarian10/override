@@ -1,5 +1,4 @@
 #pragma once
-#include "pros/adi.hpp"
 #include <cstdint>
 namespace amp {
 
@@ -15,7 +14,7 @@ namespace amp {
 		 */
 		// Pneumatics use weird wording
 		airCylinder(std::uint8_t port, bool value = false)
-		    : ADIport(port, value)
+		    : port(port)
 		    , value(value) {}
 
 		/**
@@ -23,10 +22,7 @@ namespace amp {
 		 *
 		 * @param value
 		 */
-		void set(bool value) {
-			this->value = value;
-			ADIport.set_value(value);
-		}
+		void set(bool value) { this->value = value; }
 		/**
 		 * @brief Toggles the pneumatic cylinder to the other state
 		 *
@@ -43,6 +39,6 @@ namespace amp {
 
 	private:
 		bool value;
-		pros::adi::DigitalOut ADIport;
+		int port;
 	};
 }

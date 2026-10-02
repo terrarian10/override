@@ -42,19 +42,28 @@ namespace amp {
 
 		int tank(std::int32_t left, std::int32_t right) {
 			for (auto& i : leftWheels) {
-				i.set(left);
+				i.mod(left);
 			}
 			for (auto& i : rightWheels) {
-				i.set(right);
+				i.mod(right);
 			}
 			return 0;
 		}
-		int addVolts(std::int32_t left, std::int32_t right) {
+		int arcade(std::int32_t left, std::int32_t right) {
 			for (auto& i : leftWheels) {
-				i.set(left);
+				i.mod(left);
 			}
 			for (auto& i : rightWheels) {
-				i.set(right);
+				i.mod(right);
+			}
+			return 0;
+		}
+		int addVolts(std::int32_t forward, std::int32_t turn) {
+			for (auto& i : leftWheels) {
+				i.set(forward - turn);
+			}
+			for (auto& i : rightWheels) {
+				i.set(forward + turn);
 			}
 			return 0;
 		}

@@ -4,8 +4,6 @@
 #include "zamp/chassis.hpp"
 #include "zamp/object.hpp"
 #include <cstdint>
-#include <map>
-#include <string>
 #include <vector>
 namespace amp {
 	class robot {
@@ -40,7 +38,7 @@ namespace amp {
 				}
 			}
 		}
-		void updateSensorData() {}
+		void updateSensorData() { chassis.odomTick(); }
 
 	private:
 		amp::chassis& chassis;

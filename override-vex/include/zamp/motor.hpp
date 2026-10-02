@@ -20,6 +20,10 @@ namespace amp {
 			voltage = speed;
 			return 0;
 		}
+		std::int32_t mod(const std::int32_t speed) {
+			voltage *= speed;
+			return 0;
+		}
 		std::int32_t setObject() {
 			item.move_voltage(voltage);
 			return 0;

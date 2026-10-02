@@ -1,6 +1,8 @@
 #include "main.h"
 #include "pros/misc.h"
+#include "pros/misc.hpp"
 #include "pros/motors.hpp"
+#include "zamp/airCylinder.hpp"
 
 /**
  * A callback function for LLEMU's center button.
@@ -78,6 +80,9 @@ void autonomous() {}
 void opcontrol() {
 	pros::Controller master(pros::E_CONTROLLER_MASTER);
 	pros::Motor testmotor(1);
+	if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
+		
+	}
 	while (true) {
 		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) {
 			testmotor.move_voltage(12000);

@@ -1,7 +1,7 @@
 #pragma once
-#include <cstdint>
+#include "pros/adi.hpp"
+#include <utility>
 namespace amp {
-
 	class airCylinder {
 	public:
 		/**
@@ -13,8 +13,8 @@ namespace amp {
 		         The value that the piston STARTS WITH
 		 */
 		// Pneumatics use weird wording
-		airCylinder(std::uint8_t port, bool value = false)
-		    : port(port)
+		airCylinder(pros::adi::ext_adi_port_pair_t port, bool value = false)
+		    : air(port)
 		    , value(value) {}
 
 		/**
@@ -35,10 +35,11 @@ namespace amp {
 		 * @return true The cylinder is extended
 		 * @return false The cylinder is not extended
 		 */
+		std::pair<std::uint8_t, std::uint8_t> getPort() { return air; }
 		bool get(void) { return this->value; }
 
 	private:
+		pros::adi::ext_adi_port_pair_t air;
 		bool value;
-		int port;
 	};
 }

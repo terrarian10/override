@@ -5,6 +5,7 @@
 #include "zamp/math.hpp"
 #include "zamp/motor.hpp"
 #include <cstdint>
+#include <map>
 #include <optional>
 #include <vector>
 namespace amp {
@@ -56,6 +57,18 @@ namespace amp {
 				i.set(right);
 			}
 			return 0;
+		}
+		std::map<int, int> getMotors() {
+			std::map<int, int> toRet;
+			for (auto& motor : leftWheels) {
+				toRet[motor.get(motorStats::PORT)] =
+				    motor.get(motorStats::SPEED);
+			}
+			for (auto& motor : rightWheels) {
+				toRet[motor.get(motorStats::PORT)] =
+				    motor.get(motorStats::SPEED);
+			}
+			return toRet;
 		}
 		int resetPos(amp::pose setPos) {
 			setPos.theta *= amp::numbers::toRADS;

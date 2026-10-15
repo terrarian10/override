@@ -21,4 +21,9 @@ namespace amp {
 
 		void setRadians(double radians) { theta = radians; }
 	};
+
+	struct moveSettings {
+		const double maxVolt;
+	};
+
 }

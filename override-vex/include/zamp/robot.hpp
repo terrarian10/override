@@ -38,7 +38,7 @@ namespace amp {
 				}
 			}
 		}
-		void updateSensorData() { chassis.odomTick(); }
+		void getSensors() { chassis.odomTick(); }
 
 	private:
 		amp::chassis& chassis;

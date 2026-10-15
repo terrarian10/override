@@ -6,14 +6,19 @@
 #include <unordered_map>
 #include <vector>
 namespace amp {
+	struct objectSensors {};
 	class object {
 	public:
 		explicit object(
 		    std::map<std::string, std::vector<amp::motor>>& motors,
-		    std::map<std::string, std::vector<amp::airCylinder>>& airs)
+		    std::map<std::string, std::vector<amp::airCylinder>>& airs,
+		    objectSensors& sensors)
 		    : airs(airs)
-		    , motors(motors) {};
+		    , motors(motors)
+		    , sensors(sensors) {};
 		virtual ~object() = default;
+
+		// getMotors
 		std::map<int, int> getMotors() {
 			std::map<int, int> toRet;
 			for (auto& group : motors) {
@@ -24,6 +29,8 @@ namespace amp {
 			}
 			return toRet;
 		}
+
+		// getAirs
 		std::map<std::pair<std::uint8_t, std::uint8_t>, int> getAirs() {
 			std::map<std::pair<std::uint8_t, std::uint8_t>, int> toRet;
 			for (auto& group : airs) {
@@ -37,5 +44,7 @@ namespace amp {
 	private:
 		std::map<std::string, std::vector<amp::motor>>& motors;
 		std::map<std::string, std::vector<amp::airCylinder>>& airs;
+		objectSensors& sensors;
 	};
+
 }

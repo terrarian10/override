@@ -2,6 +2,7 @@
 #include "odometry.hpp"
 #include "pros/distance.hpp"
 #include "pros/imu.hpp"
+#include "zamp/consts.hpp"
 #include "zamp/math.hpp"
 #include "zamp/motor.hpp"
 #include <cstdint>
@@ -9,7 +10,7 @@
 #include <optional>
 #include <vector>
 namespace amp {
-	struct sensors {
+	struct chassisSensors {
 		odometryWheel horizontal;
 		odometryWheel vertical;
 		pros::Imu imu;
@@ -31,14 +32,16 @@ namespace amp {
 	public:
 		explicit chassis(std::vector<amp::motor>& leftWheels,
 		                 std::vector<amp::motor>& rightWheels,
-		                 sensors& sensors,
+		                 chassisSensors& chassisSensors,
 		                 motionController moveCtrl)
 		    : leftWheels(leftWheels)
 		    , rightWheels(rightWheels)
-		    , sensors(sensors)
+		    , chassisSensors(chassisSensors)
 		    , moveCtrl(moveCtrl) {
 
 		    };
+		amp::pose getPos() { return pos; }
+		amp::motionController getCtrl() { return moveCtrl; }
 
 		int tank(std::int32_t left, std::int32_t right) {
 			for (auto& i : leftWheels) {
@@ -49,21 +52,30 @@ namespace amp {
 			}
 			return 0;
 		}
-		int arcade(std::int32_t left, std::int32_t right) {
+		int tank(std::pair<int, int> vals) {
 			for (auto& i : leftWheels) {
-				i.mod(left);
+				i.mod(vals.first);
 			}
 			for (auto& i : rightWheels) {
-				i.mod(right);
+				i.mod(vals.second);
 			}
 			return 0;
 		}
-		int addVolts(std::int32_t forward, std::int32_t turn) {
+		int addVolts(std::int32_t left, std::int32_t right) {
 			for (auto& i : leftWheels) {
-				i.set(forward - turn);
+				i.set(left);
 			}
 			for (auto& i : rightWheels) {
-				i.set(forward + turn);
+				i.set(right);
+			}
+			return 0;
+		}
+		int arcade(std::int32_t forward, std::int32_t turn) {
+			for (auto& i : leftWheels) {
+				i.mod(forward - turn);
+			}
+			for (auto& i : rightWheels) {
+				i.mod(forward + turn);
 			}
 			return 0;
 		}
@@ -90,9 +102,16 @@ namespace amp {
 			pos.theta += addPos.theta * amp::numbers::toRADS;
 			return 0;
 		}
+		int driveTo(amp::pose pose, amp::moveSettings settings = { 12000 }) {
+			tank(amp::poseTo(pos,
+			                 pose,
+			                 { moveCtrl.lateralKP, moveCtrl.angularKP },
+			                 settings));
+			return 0;
+		}
 		void odomTick() {
-			double forward = sensors.vertical.rotToCm();
-			double sideways = sensors.horizontal.rotToCm();
+			double forward = chassisSensors.vertical.rotToCm();
+			double sideways = chassisSensors.horizontal.rotToCm();
 
 			//  IMU To Radian
 			//
@@ -101,7 +120,7 @@ namespace amp {
 			// Because ofc it cant be simple where 0 rad = +y and keep the math
 			// sane positive = counterclockwise sobbbbb screw you
 			double imuHeading =
-			    sensors.imu.get_heading() * amp::numbers::toRADS;
+			    chassisSensors.imu.get_heading() * amp::numbers::toRADS;
 
 			double theta =
 			    amp::constrainAngle(amp::numbers::PI / 2.0 - imuHeading);
@@ -112,9 +131,9 @@ namespace amp {
 
 			double dTheta = amp::constrainAngle(theta - oldMovement.theta);
 
-			dForward -= sensors.vertical.getOffset() * dTheta;
+			dForward -= chassisSensors.vertical.getOffset() * dTheta;
 
-			dSideways -= sensors.horizontal.getOffset() * dTheta;
+			dSideways -= chassisSensors.horizontal.getOffset() * dTheta;
 
 			double avgTheta = oldMovement.theta + dTheta / 2.0;
 
@@ -138,7 +157,7 @@ namespace amp {
 	private:
 		std::vector<amp::motor>& leftWheels;
 		std::vector<amp::motor>& rightWheels;
-		sensors& sensors;
+		chassisSensors& chassisSensors;
 		motionController moveCtrl;
 		amp::pose pos;
 		amp::pose odomEstimate;

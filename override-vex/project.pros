@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "override-vex",
+    "project_name": "override",
     "target": "v5",
     "templates": {
       "kernel": {

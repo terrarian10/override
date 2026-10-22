@@ -13,5 +13,6 @@ namespace amp {
 	struct motionSettings {
 		int timeout = 5000;
 		int iterations = 300;
+		double maxVolt = 12000;
 	};
 }

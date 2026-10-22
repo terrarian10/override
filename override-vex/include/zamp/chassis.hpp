@@ -7,6 +7,7 @@
 #include "zamp/motor.hpp"
 #include <cstdint>
 #include <map>
+#include <numbers>
 #include <optional>
 #include <vector>
 namespace amp {
@@ -24,7 +25,6 @@ namespace amp {
 	struct motionController {
 		const double lateralKP = 3.0;
 		const double lateralKD = 10.0;
-
 		const double angularKP = 50.0;
 		const double angularKD = 5.0;
 	};
@@ -92,14 +92,14 @@ namespace amp {
 			return toRet;
 		}
 		int resetPos(amp::pose setPos) {
-			setPos.theta *= amp::numbers::toRADS;
 			pos = setPos;
 			return 0;
 		}
 		int modifyPos(amp::pose addPos) {
 			pos.x += addPos.x;
 			pos.y += addPos.y;
-			pos.theta += addPos.theta * amp::numbers::toRADS;
+			pos.theta += addPos.theta;
+
 			return 0;
 		}
 		int driveTo(amp::pose pose, amp::moveSettings settings = { 12000 }) {
@@ -119,11 +119,9 @@ namespace amp {
 			// pi/2    = +Y
 			// Because ofc it cant be simple where 0 rad = +y and keep the math
 			// sane positive = counterclockwise sobbbbb screw you
-			double imuHeading =
-			    chassisSensors.imu.get_heading() * amp::numbers::toRADS;
+			double imuHeading = chassisSensors.imu.get_heading();
 
-			double theta =
-			    amp::constrainAngle(amp::numbers::PI / 2.0 - imuHeading);
+			double theta = amp::constrainAngle(90.0 - imuHeading);
 
 			double dForward = forward - oldMovement.y;
 
@@ -131,17 +129,20 @@ namespace amp {
 
 			double dTheta = amp::constrainAngle(theta - oldMovement.theta);
 
-			dForward -= chassisSensors.vertical.getOffset() * dTheta;
+			double dThetaRad = dTheta * (std::numbers::pi / 180.0);
 
-			dSideways -= chassisSensors.horizontal.getOffset() * dTheta;
+			dForward -= chassisSensors.vertical.getOffset() * dThetaRad;
+			dSideways -= chassisSensors.horizontal.getOffset() * dThetaRad;
 
 			double avgTheta = oldMovement.theta + dTheta / 2.0;
 
 			double dx =
-			    dForward * std::cos(avgTheta) + dSideways * std::sin(avgTheta);
+			    dForward * std::cos(avgTheta * (amp::numbers::PI / 180)) +
+			    dSideways * std::sin(avgTheta * (amp::numbers::PI / 180));
 
 			double dy =
-			    dForward * std::sin(avgTheta) - dSideways * std::cos(avgTheta);
+			    dForward * std::sin(avgTheta * (amp::numbers::PI / 180)) -
+			    dSideways * std::cos(avgTheta * (amp::numbers::PI / 180));
 
 			oldOdomPos = odomEstimate;
 

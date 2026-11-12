@@ -5,6 +5,7 @@
 class virtualController {
 public:
 	// virtualController();
+	// Virtual controller shenanigans. Self explanitory
 	std::map<pros::controller_digital_e_t, bool> buttons;
 	std::map<pros::controller_analog_e_t, float> joysticks;
 	std::vector<pros::controller_digital_e_t> newPress;
@@ -22,9 +23,12 @@ public:
 		auto it = joysticks.find(i);
 		return it != joysticks.end() ? it->second : 0;
 	}
+
+	// Artificially create new press
 	void addNewPress(pros::controller_digital_e_t key) {
 		newPress.emplace_back(key);
 	}
+	// Mess with newPress detection
 	void clearNewPress() { newPress.clear(); }
 	std::vector<pros::controller_digital_e_t> getNewPress() { return newPress; }
 };

@@ -3,6 +3,7 @@
 #include "pros/rotation.hpp"
 #include <cmath>
 namespace amp {
+	// Odo meter y
 	class odometryWheel {
 	public:
 		odometryWheel(int rotationSensor,
@@ -13,10 +14,10 @@ namespace amp {
 		    , offset(offset) {};
 		double rotToCm() {
 			return (double(rotationSensor.get_position()) / 36000.0) *
-			       (M_PI * wheel_size);
+			       (M_PI * wheel_size); // CM From rotation amount
 		}
-		void reset() { rotationSensor.reset_position(); }
-		std::double_t getOffset() { return offset; }
+		void reset() { rotationSensor.reset_position(); } // Resets it
+		std::double_t getOffset() { return offset; } // Gets the current offset
 
 	private:
 		pros::Rotation rotationSensor;

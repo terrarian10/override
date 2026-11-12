@@ -1,16 +1,20 @@
 #pragma once
 #include <cmath>
 #include <numbers>
-namespace amp::WHEELS {
-	static constexpr std::double_t IN_2_OMNI = 5.08;
 
+// Constants
+namespace amp::WHEELS { // Wheel sizes, not in the namespace because why the
+                        // frick not
+	static constexpr std::double_t IN_2_OMNI = 5.08;
 }
 namespace amp {
-	namespace numbers {
-		const std::double_t PI = std::numbers::pi;
+	namespace numbers { // Important numbers
+		const std::double_t PI =
+		    std::numbers::pi; // Pi is ours now. We invented it
 		// const std::double_t toRADS = PI / 180;
 		const std::double_t toDEGS = 180 / PI;
 	};
+	// Pose
 	struct pose {
 		std::double_t x;
 		std::double_t y;
@@ -18,7 +22,7 @@ namespace amp {
 		double getDegrees() const { return theta; };
 		void setDegrees(double degrees) { theta = degrees; }
 	};
-
+	// Settings for handling a motion
 	struct moveSettings {
 		const double maxVolt;
 	};

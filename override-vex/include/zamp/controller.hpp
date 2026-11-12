@@ -3,7 +3,9 @@
 #include "pros/misc.hpp"
 #include <cstdint>
 namespace amp {
-	enum class controllerInteractions {
+
+	// Why. What prompted me to do this. There has to be a better way
+	enum class controllerInteractions { // Every single controller interaction
 		STICK_LEFT_X,
 		STICK_RIGHT_X,
 		STICK_LEFT_Y,
@@ -21,13 +23,16 @@ namespace amp {
 		BUTTON_R1,
 		BUTTON_R2
 	};
+
+	// Controller object
 	class controller {
 	public:
 		controller()
 		    : master(pros::E_CONTROLLER_MASTER) {
 
-		    };
+		    }; // How we initialize a controller
 
+		// Get a specific button or toggle
 		std::int32_t get(controllerInteractions input) {
 			switch (input) {
 				case controllerInteractions::STICK_LEFT_X:
@@ -81,6 +86,9 @@ namespace amp {
 				default: return 0;
 			}
 		}
+
+		// Rumble or display text??? What. When did I do this. Where can we set
+		// buttons?
 		std::int32_t set(const char* toSet) {
 			if (toSet[0] == '.' || toSet[0] == '-') {
 				master.rumble(toSet);

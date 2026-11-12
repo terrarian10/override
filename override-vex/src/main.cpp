@@ -1,24 +1,15 @@
 #include "main.h"
+#include "pros/imu.hpp"
 #include "pros/misc.h"
 #include "pros/misc.hpp"
 #include "pros/motors.hpp"
-#include "zamp/airCylinder.hpp"
-
-/**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
-void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
-}
+#include "zamp/chassis.hpp"
+#include "zamp/consts.hpp"
+#include "zamp/motor.hpp"
+#include "zamp/object.hpp"
+#include "zamp/odometry.hpp"
+#include "zamp/robot.hpp"
+#include <vector>
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -29,9 +20,25 @@ void on_center_button() {
 void initialize() {
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "Hello PROS User!");
-
-	pros::lcd::register_btn1_cb(on_center_button);
 }
+// Odom/ChassisSensors
+amp::odometryWheel vert(1, amp::WHEELS::IN_2_OMNI, 0);
+amp::odometryWheel horiz(1, amp::WHEELS::IN_2_OMNI, 0);
+pros::Imu imu(1);
+amp::chassisSensors chassisSensors{ .vertical = vert,
+                                    .horizontal = horiz,
+                                    .imu = imu };
+// DT
+std::vector<amp::motor> leftDT({ 1, 2, 3 });
+std::vector<amp::motor> rightDT({ 1, 2, 3 });
+
+// Motion Controller
+amp::motionController moveCtrl{};
+
+// Mechanisms
+std::vector<amp::object> mechanisms;
+amp::chassis dt(leftDT, rightDT, chassisSensors, moveCtrl);
+amp::robot bot(dt, mechanisms);
 
 /**
  * Runs while the robot is in the disabled state of Field Management System or

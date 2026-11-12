@@ -5,7 +5,7 @@
 namespace amp {
 	class odometryWheel {
 	public:
-		odometryWheel(pros::Rotation& rotationSensor,
+		odometryWheel(int rotationSensor,
 		              std::double_t wheel_size,
 		              std::double_t offset)
 		    : rotationSensor(rotationSensor)
@@ -19,7 +19,7 @@ namespace amp {
 		std::double_t getOffset() { return offset; }
 
 	private:
-		pros::Rotation& rotationSensor;
+		pros::Rotation rotationSensor;
 		std::double_t wheel_size;
 		std::double_t offset;
 	};

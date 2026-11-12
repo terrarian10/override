@@ -12,8 +12,8 @@
 #include <vector>
 namespace amp {
 	struct chassisSensors {
-		odometryWheel horizontal;
 		odometryWheel vertical;
+		odometryWheel horizontal;
 		pros::Imu imu;
 		std::optional<pros::Distance> front;
 		std::optional<pros::Distance> front_2;
@@ -160,12 +160,12 @@ namespace amp {
 		std::vector<amp::motor>& rightWheels;
 		chassisSensors& chassisSensors;
 		motionController moveCtrl;
-		amp::pose pos;
-		amp::pose odomEstimate;
-		amp::pose distanceEstimate;
+		amp::pose pos{};
+		amp::pose odomEstimate{};
+		amp::pose distanceEstimate{};
 
-		amp::pose oldOdomPos;
+		amp::pose oldOdomPos{};
 
-		amp::pose oldMovement; // Old forward / sideways / theta
+		amp::pose oldMovement{}; // Old forward / sideways / theta
 	};
 }

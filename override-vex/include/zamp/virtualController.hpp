@@ -1,3 +1,4 @@
+#pragma once
 #include "pros/misc.h"
 #include <map>
 #include <vector>

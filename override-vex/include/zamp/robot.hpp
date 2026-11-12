@@ -1,17 +1,14 @@
 #pragma once
-#include "pros/adi.hpp"
 #include "pros/motors.hpp"
 #include "zamp/chassis.hpp"
+#include "zamp/consts.hpp"
+#include "zamp/motor.hpp"
 #include "zamp/object.hpp"
-#include <cstdint>
 #include <vector>
 namespace amp {
 	class robot {
 	public:
-		explicit robot(std::vector<int> mots,
-		               std::vector<std::pair<std::uint8_t, std::uint8_t>> airs,
-		               amp::chassis& chassis,
-		               std::vector<amp::object>& mechs)
+		explicit robot(amp::chassis& chassis, std::vector<amp::object>& mechs)
 		    : chassis(chassis)
 		    , mechs(mechs) {}
 
@@ -19,25 +16,34 @@ namespace amp {
 			chassis.addVolts(12000, 12000);
 			chassis.tank(left, right);
 		}
+		void setState(std::string mech, std::string state) {
+			for (auto& m : mechs) {
+				if (m.getName() == mech) { m.setState(state); }
+			}
+		}
+		void moveToPose(amp::pose poseTo, amp::moveSettings settings) {
+			chassis.addVolts(12000, 12000);
+
+			chassis.driveTo(poseTo, settings);
+		}
 		void updateBot() {
 			for (auto& mot : chassis.getMotors()) {
 				pros::Motor(mot.first).move_voltage(mot.second);
 			}
 			for (auto& obj : mechs) {
-				for (auto& mot : obj.getMotors()) {
-					pros::Motor(mot.first).move_voltage(mot.second);
+				for (auto& section : obj.motors) {
+					for (auto& mot : section.second) {
+						mot.setObject();
+					};
 				}
-				for (auto& airG : obj.getAirs()) {
-					pros::adi::DigitalOut([&]() {
-						if (airG.first.second != 255) {
-							return pros::adi::DigitalOut(airG.first);
-						}
-						return pros::adi::DigitalOut(airG.first.first);
-					}())
-					    .set_value(airG.second);
+				for (auto& airG : obj.airs) {
+					for (auto& air : airG.second) {
+						air.setObject();
+					}
 				}
 			}
 		}
+		amp::pose getPose() { return chassis.getPos(); }
 		void getSensors() { chassis.odomTick(); }
 
 	private:

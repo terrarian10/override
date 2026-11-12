@@ -7,7 +7,7 @@ namespace amp {
 	class testState : public amp::state {
 		testState(std::map<std::string, amp::motor> motors,
 		          std::map<std::string, amp::airCylinder> airs)
-		    : state(motors, airs, "test") {}
+		    : state("state", motors, airs) {}
 		void activate() override {}
 	};
 }

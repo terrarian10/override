@@ -23,6 +23,7 @@ namespace amp {
 		 * @param value
 		 */
 		void set(bool value) { this->value = value; }
+		void setObject() { pros::adi::DigitalOut(air).set_value(value); }
 		/**
 		 * @brief Toggles the pneumatic cylinder to the other state
 		 *

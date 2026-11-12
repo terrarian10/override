@@ -6,9 +6,9 @@
 namespace amp {
 	class state {
 	public:
-		explicit state(std::map<std::string, amp::motor>& motors,
-		               std::map<std::string, amp::airCylinder>& airs,
-		               std::string id)
+		explicit state(std::string id,
+		               std::map<std::string, amp::motor>& motors,
+		               std::map<std::string, amp::airCylinder>& airs)
 		    : airs(airs)
 		    , motors(motors)
 		    , id(std::move(id)) {};
@@ -21,7 +21,7 @@ namespace amp {
 		amp::motor& motor(const std::string& name) { return motors.at(name); }
 
 	private:
-		std::map<std::string, amp::airCylinder> airs;
+		std::map<std::string, amp::airCylinder>& airs;
 		std::map<std::string, amp::motor>& motors;
 		std::string id;
 	};
